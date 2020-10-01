@@ -1,0 +1,38 @@
+[{:path "/api/v2/authenticated_user" :method :get}
+ {:path "/api/v2/authenticated_user/items" :method :get}
+
+ {:path "/api/v2/comments/:comment_id" :method :delete}
+ {:path "/api/v2/comments/:comment_id" :method :get}
+ {:path "/api/v2/comments/:comment_id" :method :patch}
+ {:path "/api/v2/comments/:comment_id/thank" :method :delete}
+ {:path "/api/v2/comments/:comment_id/thank" :method :put}
+
+ {:path "/api/v2/items" :method :get}
+ {:path "/api/v2/items" :method :post}
+ {:path "/api/v2/items/:item_id" :method :delete}
+ {:path "/api/v2/items/:item_id" :method :get}
+ {:path "/api/v2/items/:item_id" :method :patch}
+ {:path "/api/v2/items/:item_id/comments" :method :get}
+ {:path "/api/v2/items/:item_id/comments" :method :post}
+ {:path "/api/v2/items/:item_id/stock" :method :delete}
+ {:path "/api/v2/items/:item_id/stock" :method :get}
+ {:path "/api/v2/items/:item_id/stock" :method :put}
+ {:path "/api/v2/items/:item_id/stockers" :method :get}
+
+ {:path "/api/v2/tags" :method :get}
+ {:path "/api/v2/tags/:tag_id" :method :get}
+ {:path "/api/v2/tags/:tag_id/following" :method :delete}
+ {:path "/api/v2/tags/:tag_id/following" :method :get}
+ {:path "/api/v2/tags/:tag_id/following" :method :put}
+ {:path "/api/v2/tags/:tag_id/items" :method :get}
+
+ {:path "/api/v2/users" :method :get}
+ {:path "/api/v2/users/:user_id" :method :get}
+ {:path "/api/v2/users/:user_id/followees" :method :get}
+ {:path "/api/v2/users/:user_id/followers" :method :get}
+ {:path "/api/v2/users/:user_id/following" :method :delete}
+ {:path "/api/v2/users/:user_id/following" :method :get}
+ {:path "/api/v2/users/:user_id/following" :method :put}
+ {:path "/api/v2/users/:user_id/following_tags" :method :get}
+ {:path "/api/v2/users/:user_id/items" :method :get}
+ {:path "/api/v2/users/:user_id/stocks" :method :get}]

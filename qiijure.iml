@@ -9,7 +9,13 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Deps: org.clojure/clojure:1.10.1" level="project" />
-    <orderEntry type="library" name="Deps: org.clojure/spec.alpha:0.2.176" level="project" />
     <orderEntry type="library" name="Deps: org.clojure/core.specs.alpha:0.2.44" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/spec.alpha:0.2.176" level="project" />
+    <orderEntry type="library" name="Deps: com.fasterxml.jackson.dataformat/jackson-dataformat-cbor:2.10.2" level="project" />
+    <orderEntry type="library" name="Deps: com.fasterxml.jackson.core/jackson-core:2.10.2" level="project" />
+    <orderEntry type="library" name="Deps: cheshire:5.10.0" level="project" />
+    <orderEntry type="library" name="Deps: tigris:0.1.2" level="project" />
+    <orderEntry type="library" name="Deps: com.fasterxml.jackson.dataformat/jackson-dataformat-smile:2.10.2" level="project" />
+    <orderEntry type="library" name="Deps: http-kit:2.4.0" level="project" />
   </component>
 </module>

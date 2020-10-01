@@ -2,7 +2,8 @@
   (:require [clojure.edn :as edn]
             [clojure.string :as str]
             [cheshire.core :as cheshire]
-            [org.httpkit.client :as http]))
+            [org.httpkit.client :as http])
+  (:import (com.sun.tools.hat.internal.model Root)))
 
 (def access-token (atom nil))
 
@@ -53,7 +54,7 @@
   (let [{:keys [body] :as response} @(http/put url (merge-options {:form-params params}))]
     (assoc response :body (cheshire/parse-string body true))))
 
-(defn- get-root-params
+(defn- get-route-params
   "パスからルートパラメータを取得する."
   [path]
   (->> path
@@ -63,9 +64,11 @@
 
 (defn- path-options-reducer
   "パスのルートパラメータを置換し,オプションからルートパラメータを削除する."
-  [[path options] root-param]
-  [(str/replace path (str root-param) (str (root-param options)))
-   (dissoc options root-param)])
+  [[path options] route-param]
+  (if-let [replacement (get options route-param)]
+    [(str/replace path (str route-param) (str replacement))
+     (dissoc options route-param)]
+    (throw (IllegalArgumentException. (str "Route parameter " route-param " is required.")))))
 
 (defn- path->function-name
   "パスを関数名に変換する."
@@ -84,8 +87,8 @@
         function-name (path->function-name path method)]
     (intern *ns* (with-meta (symbol function-name) metadata)
             (fn [& [{:as options}]]
-              (let [root-params (get-root-params path)
-                    [reduced-path reduced-params] (reduce path-options-reducer [path options] root-params)]
+              (let [route-params (get-route-params path)
+                    [reduced-path reduced-params] (reduce path-options-reducer [path options] route-params)]
                 (request {:url    (endpoint->url endpoint reduced-path)
                           :method method
                           :params reduced-params}))))))

@@ -78,11 +78,14 @@
 (doseq [endpoint endpoints]
   (let [method (:method endpoint)
         path (:path endpoint)
+        doc (str "Calling the Qiita endpoint: " (str/upper-case (name method)) " " (endpoint->url endpoint)
+                 "\n  adding `options-map` to the request.")
+        metadata {:arglists '([& {:as options-map}]) :doc doc}
         function-name (path->function-name path method)]
-    (intern *ns* (symbol function-name)
+    (intern *ns* (with-meta (symbol function-name) metadata)
             (fn [& [{:as options}]]
               (let [root-params (get-root-params path)
                     [reduced-path reduced-params] (reduce path-options-reducer [path options] root-params)]
-                (request {:url     (endpoint->url endpoint reduced-path)
-                          :method  method
-                          :params  reduced-params}))))))
+                (request {:url    (endpoint->url endpoint reduced-path)
+                          :method method
+                          :params reduced-params}))))))

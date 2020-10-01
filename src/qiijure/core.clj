@@ -12,7 +12,7 @@
   (reset! access-token token))
 
 (def endpoints
-  "resources/endpoints.edn から取得したエンドポイント."
+  "`resources/endpoints.edn`から取得したエンドポイント."
   (for [endpoint (edn/read-string (slurp "resources/endpoints.edn"))]
     (merge {:scheme "https"
             :host   "qiita.com"}

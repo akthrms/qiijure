@@ -2,8 +2,7 @@
   (:require [clojure.edn :as edn]
             [clojure.string :as str]
             [cheshire.core :as cheshire]
-            [org.httpkit.client :as http])
-  (:import (com.sun.tools.hat.internal.model Root)))
+            [org.httpkit.client :as http]))
 
 (def access-token (atom nil))
 

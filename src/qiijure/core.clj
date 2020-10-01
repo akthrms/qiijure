@@ -4,6 +4,13 @@
             [cheshire.core :as cheshire]
             [org.httpkit.client :as http]))
 
+(def access-token (atom nil))
+
+(defn set-access-token
+  "アクセストークンを設定する."
+  [token]
+  (reset! access-token token))
+
 (def endpoints
   "resources/endpoints.edn から取得したエンドポイント."
   (for [endpoint (edn/read-string (slurp "resources/endpoints.edn"))]
@@ -16,28 +23,34 @@
   ([{:keys [scheme host path]}] (str scheme "://" host path))
   ([{:keys [scheme host]} path] (str scheme "://" host path)))
 
+(defn- merge-options
+  "アクセストークンを設定している場合はオプションにマージする."
+  [options]
+  (if @access-token (merge {:headers {"Authorization" (str "Bearer " @access-token)}} options)
+                    options))
+
 (defmulti request
           "HTTPリクエスト（DELETE/GET/PATCH/POST/PUT）する."
           #(:method %))
 
-(defmethod request :delete [{:keys [url options]}]
-  (let [{:keys [body] :as response} @(http/delete url {:query-params options})]
+(defmethod request :delete [{:keys [url params]}]
+  (let [{:keys [body] :as response} @(http/delete url (merge-options {:query-params params}))]
     (assoc response :body (cheshire/parse-string body true))))
 
-(defmethod request :get [{:keys [url options]}]
-  (let [{:keys [body] :as response} @(http/get url {:query-params options})]
+(defmethod request :get [{:keys [url params]}]
+  (let [{:keys [body] :as response} @(http/get url (merge-options {:query-params params}))]
     (assoc response :body (cheshire/parse-string body true))))
 
-(defmethod request :patch [{:keys [url options]}]
-  (let [{:keys [body] :as response} @(http/patch url {:form-params options})]
+(defmethod request :patch [{:keys [url params]}]
+  (let [{:keys [body] :as response} @(http/patch url (merge-options {:form-params params}))]
     (assoc response :body (cheshire/parse-string body true))))
 
-(defmethod request :post [{:keys [url options]}]
-  (let [{:keys [body] :as response} @(http/post url {:form-params options})]
+(defmethod request :post [{:keys [url params]}]
+  (let [{:keys [body] :as response} @(http/post url (merge-options {:form-params params}))]
     (assoc response :body (cheshire/parse-string body true))))
 
-(defmethod request :put [{:keys [url options]}]
-  (let [{:keys [body] :as response} @(http/put url {:form-params options})]
+(defmethod request :put [{:keys [url params]}]
+  (let [{:keys [body] :as response} @(http/put url (merge-options {:form-params params}))]
     (assoc response :body (cheshire/parse-string body true))))
 
 (defn- get-root-params
@@ -69,7 +82,7 @@
     (intern *ns* (symbol function-name)
             (fn [& [{:as options}]]
               (let [root-params (get-root-params path)
-                    [reduced-path reduced-options] (reduce path-options-reducer [path options] root-params)]
+                    [reduced-path reduced-params] (reduce path-options-reducer [path options] root-params)]
                 (request {:url     (endpoint->url endpoint reduced-path)
                           :method  method
-                          :options reduced-options}))))))
+                          :params  reduced-params}))))))

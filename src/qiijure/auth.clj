@@ -13,4 +13,6 @@
   "環境変数を認証に変換する."
   []
   (let [access-token (System/getenv access-token-env-key)]
-    (generate-credentials access-token)))
+    (if access-token
+      (generate-credentials access-token)
+      (throw (Exception. "Not found access token key.")))))

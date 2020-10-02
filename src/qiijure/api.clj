@@ -50,10 +50,10 @@
 
 (defn- path-params-reducer
   "パスのルートパラメータを置換し,オプションからルートパラメータを削除する."
-  [[path options] route-param]
-  (if-let [replacement (get options route-param)]
+  [[path params] route-param]
+  (if-let [replacement (get params route-param)]
     [(str/replace path (str route-param) (str replacement))
-     (dissoc options route-param)]
+     (dissoc params route-param)]
     (throw (IllegalArgumentException. (str "Route parameter " route-param " is required.")))))
 
 (defn- path->function-name
@@ -72,7 +72,7 @@
         metadata {:arglists '([& {:keys [credentials params] :as options-map}]) :doc doc}
         function-name (path->function-name path method)]
     (intern *ns* (with-meta (symbol function-name) metadata)
-            (fn [& [{:keys [credentials params]}]]
+            (fn [& {:keys [credentials params]}]
               (let [route-params (get-route-params path)
                     [reduced-path reduced-params] (reduce path-params-reducer [path params] route-params)]
                 (request {:url     (endpoint->url endpoint reduced-path)

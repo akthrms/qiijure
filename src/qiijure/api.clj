@@ -69,7 +69,7 @@
         path (:path endpoint)
         doc (str "Calling the Qiita endpoint: " (str/upper-case (name method)) " " (endpoint->url endpoint)
                  "\n  adding `options-map` to the request.")
-        metadata {:arglists '([& {:as options-map}]) :doc doc}
+        metadata {:arglists '([& {:keys [credentials params] :as options-map}]) :doc doc}
         function-name (path->function-name path method)]
     (intern *ns* (with-meta (symbol function-name) metadata)
             (fn [& [{:keys [credentials params]}]]

@@ -26,8 +26,9 @@
 (defn- merge-headers
   "アクセストークンを設定している場合はヘッダーをオプションにマージする."
   [options]
-  (if @access-token (merge {:headers {"Authorization" (str "Bearer " @access-token)}} options)
-                    options))
+  (if @access-token
+    (merge {:headers {"Authorization" (str "Bearer " @access-token)}} options)
+    options))
 
 (defmulti request
           "HTTPリクエスト（DELETE/GET/PATCH/POST/PUT）する."

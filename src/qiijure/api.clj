@@ -1,15 +1,8 @@
-(ns qiijure.core
+(ns qiijure.api
   (:require [clojure.edn :as edn]
             [clojure.string :as str]
             [cheshire.core :as cheshire]
             [org.httpkit.client :as http]))
-
-(def access-token (atom nil))
-
-(defn set-access-token
-  "アクセストークンを設定する."
-  [token]
-  (reset! access-token token))
 
 (def endpoints
   "`resources/endpoints.edn`から取得したエンドポイント."
@@ -23,35 +16,28 @@
   ([{:keys [scheme host path]}] (str scheme "://" host path))
   ([{:keys [scheme host]} path] (str scheme "://" host path)))
 
-(defn- merge-headers
-  "アクセストークンを設定している場合はヘッダーをオプションにマージする."
-  [options]
-  (if @access-token
-    (merge {:headers {"Authorization" (str "Bearer " @access-token)}} options)
-    options))
-
 (defmulti request
           "HTTPリクエスト（DELETE/GET/PATCH/POST/PUT）する."
           #(:method %))
 
-(defmethod request :delete [{:keys [url params]}]
-  (let [{:keys [body] :as response} @(http/delete url (merge-headers {:query-params params}))]
+(defmethod request :delete [{:keys [url headers params]}]
+  (let [{:keys [body] :as response} @(http/delete url {:headers headers :query-params params})]
     (assoc response :body (cheshire/parse-string body true))))
 
-(defmethod request :get [{:keys [url params]}]
-  (let [{:keys [body] :as response} @(http/get url (merge-headers {:query-params params}))]
+(defmethod request :get [{:keys [url headers params]}]
+  (let [{:keys [body] :as response} @(http/get url {:headers headers :query-params params})]
     (assoc response :body (cheshire/parse-string body true))))
 
-(defmethod request :patch [{:keys [url params]}]
-  (let [{:keys [body] :as response} @(http/patch url (merge-headers {:form-params params}))]
+(defmethod request :patch [{:keys [url headers params]}]
+  (let [{:keys [body] :as response} @(http/patch url {:headers headers :form-params params})]
     (assoc response :body (cheshire/parse-string body true))))
 
-(defmethod request :post [{:keys [url params]}]
-  (let [{:keys [body] :as response} @(http/post url (merge-headers {:form-params params}))]
+(defmethod request :post [{:keys [url headers params]}]
+  (let [{:keys [body] :as response} @(http/post url {:headers headers :form-params params})]
     (assoc response :body (cheshire/parse-string body true))))
 
-(defmethod request :put [{:keys [url params]}]
-  (let [{:keys [body] :as response} @(http/put url (merge-headers {:form-params params}))]
+(defmethod request :put [{:keys [url headers params]}]
+  (let [{:keys [body] :as response} @(http/put url {:headers headers :form-params params})]
     (assoc response :body (cheshire/parse-string body true))))
 
 (defn- get-route-params
@@ -62,7 +48,7 @@
        (map second)
        (map keyword)))
 
-(defn- path-options-reducer
+(defn- path-params-reducer
   "パスのルートパラメータを置換し,オプションからルートパラメータを削除する."
   [[path options] route-param]
   (if-let [replacement (get options route-param)]
@@ -86,9 +72,10 @@
         metadata {:arglists '([& {:as options-map}]) :doc doc}
         function-name (path->function-name path method)]
     (intern *ns* (with-meta (symbol function-name) metadata)
-            (fn [& [{:as options}]]
+            (fn [& [{:keys [credentials params]}]]
               (let [route-params (get-route-params path)
-                    [reduced-path reduced-params] (reduce path-options-reducer [path options] route-params)]
-                (request {:url    (endpoint->url endpoint reduced-path)
-                          :method method
-                          :params reduced-params}))))))
+                    [reduced-path reduced-params] (reduce path-params-reducer [path params] route-params)]
+                (request {:url     (endpoint->url endpoint reduced-path)
+                          :method  method
+                          :headers credentials
+                          :params  reduced-params}))))))

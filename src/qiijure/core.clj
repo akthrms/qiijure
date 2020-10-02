@@ -23,8 +23,8 @@
   ([{:keys [scheme host path]}] (str scheme "://" host path))
   ([{:keys [scheme host]} path] (str scheme "://" host path)))
 
-(defn- merge-options
-  "アクセストークンを設定している場合はオプションにマージする."
+(defn- merge-headers
+  "アクセストークンを設定している場合はヘッダーをオプションにマージする."
   [options]
   (if @access-token (merge {:headers {"Authorization" (str "Bearer " @access-token)}} options)
                     options))
@@ -34,23 +34,23 @@
           #(:method %))
 
 (defmethod request :delete [{:keys [url params]}]
-  (let [{:keys [body] :as response} @(http/delete url (merge-options {:query-params params}))]
+  (let [{:keys [body] :as response} @(http/delete url (merge-headers {:query-params params}))]
     (assoc response :body (cheshire/parse-string body true))))
 
 (defmethod request :get [{:keys [url params]}]
-  (let [{:keys [body] :as response} @(http/get url (merge-options {:query-params params}))]
+  (let [{:keys [body] :as response} @(http/get url (merge-headers {:query-params params}))]
     (assoc response :body (cheshire/parse-string body true))))
 
 (defmethod request :patch [{:keys [url params]}]
-  (let [{:keys [body] :as response} @(http/patch url (merge-options {:form-params params}))]
+  (let [{:keys [body] :as response} @(http/patch url (merge-headers {:form-params params}))]
     (assoc response :body (cheshire/parse-string body true))))
 
 (defmethod request :post [{:keys [url params]}]
-  (let [{:keys [body] :as response} @(http/post url (merge-options {:form-params params}))]
+  (let [{:keys [body] :as response} @(http/post url (merge-headers {:form-params params}))]
     (assoc response :body (cheshire/parse-string body true))))
 
 (defmethod request :put [{:keys [url params]}]
-  (let [{:keys [body] :as response} @(http/put url (merge-options {:form-params params}))]
+  (let [{:keys [body] :as response} @(http/put url (merge-headers {:form-params params}))]
     (assoc response :body (cheshire/parse-string body true))))
 
 (defn- get-route-params

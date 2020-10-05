@@ -4,4 +4,4 @@
   http-kit            {:mvn/version "2.5.0"}}
 
  :aliases
- {:test {:extra-paths ["test/qiijure"]}}}
+ {:test {:extra-paths ["test"]}}}
